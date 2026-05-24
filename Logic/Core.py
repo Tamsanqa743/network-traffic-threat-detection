@@ -96,7 +96,7 @@ class Core:
         # feature indices
         indices = top_5_features.index
         for index in indices:
-            explanation.append(f"{self.user_friendly_category_names[index]} pushed traffic classification towards being {self.descriptive_classification[classification]}.\n")
+            explanation.append(self.user_friendly_category_names[index])
 
         return self.descriptive_classification[classification], explanation
 
