@@ -4,5 +4,6 @@ import pandas as pd
 core = Core()
 
 data_frame =pd.read_csv("clean_test_data.csv")
-df = data_frame.head(1)
+df = data_frame.head(2)
+print(df)
 core.explain_classification(df)

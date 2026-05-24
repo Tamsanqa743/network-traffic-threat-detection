@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import joblib, os
 from pathlib import Path
+import shap
+from .DetectionLogger import DetectionLogger
 
 class Core:
 
@@ -19,6 +21,12 @@ class Core:
         # load tree explainer from file
         self.tree_explainer = joblib.load(self.tree_explainer_filepath)
 
+        # detections logger
+        self.logger = DetectionLogger()
+
+        # classification text description
+        self.descriptive_classification = {1: 'Malicious', 0: 'Normal'}
+
 
 
     def explain_classification(self, input_data_frame_x):
@@ -34,8 +42,19 @@ class Core:
         # make classification
         classification = self.trained_rf_model.predict(input_data_frame_x)[0] # store classification as integer
         print('classifiication:', classification)
+        self.classify_traffic(input_data_frame_x)
+
+    #     shap.summary_plot(
+    #     shap_values_class_1,
+    #     input_data_frame_x,
+    #     plot_type="bar",
+    #     max_display=5,
+    #     show=True,
+    # )
 
 
     def classify_traffic(self, input_data_frame):
         '''classify traffic'''
-        return self.trained_rf_model.predict(input_data_frame)[0] # return classification as integer
+        classification = self.trained_rf_model.predict(input_data_frame)[0] # return classification as integer
+        self.logger.write_log("Network Activity Classification: " + self.descriptive_classification[classification])
+        return classification
