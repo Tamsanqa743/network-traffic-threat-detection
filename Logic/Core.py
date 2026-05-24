@@ -27,6 +27,51 @@ class Core:
         # classification text description
         self.descriptive_classification = {1: 'Malicious', 0: 'Normal'}
 
+        self.user_friendly_category_names = {
+            'num__sport': 'source port',
+            'num__dsport': 'destination port',
+            'num__dur': 'duration',
+            'num__sbytes': 'source bytes',
+            'num__dbytes': 'destination bytes',
+            'num__sttl': 'source time to live',
+            'num__Spkts': 'source packets',
+            'num__Dpkts': 'destination packets',
+            'num__swin': 'source tcp window',
+            'num__stcpb': 'source tcp base sequence number',
+            'num__dtcpb': 'destination tcp base sequence number',
+            'num__smeansz': 'source mean packet size',
+            'num__dmeansz': 'destination mean packet size',
+            'cat__proto_ICMP': 'protocol icmp',
+            'cat__proto_IGMP': 'protocol igmp',
+            'cat__proto_IPv6-ICMP': 'protocol ipv6 icmp',
+            'cat__proto_TCP': 'protocol tcp',
+            'cat__proto_UDP': 'protocol udp',
+            'cat__proto_unknown': 'protocol unknown',
+            'cat__state_closed': 'connection state closed',
+            'cat__state_established': 'connection state established',
+            'cat__state_new': 'connection state new',
+            'cat__state_unknown': 'connection state unknown',
+            'cat__service_dhcp': 'service dhcp',
+            'cat__service_dns': 'service dns',
+            'cat__service_failed': 'service failed',
+            'cat__service_ftp': 'service ftp',
+            'cat__service_http': 'service http',
+            'cat__service_ntp': 'service ntp',
+            'cat__service_rfb': 'service rfb',
+            'cat__service_smb': 'service smb',
+            'cat__service_smtp': 'service smtp',
+            'cat__service_ssh': 'service ssh',
+            'cat__service_telnet': 'service telnet',
+            'cat__service_tls': 'service tls',
+            'cat__service_unknown': 'service unknown',
+            'cat__ct_state_ttl_close_wait': 'connection state ttl close wait',
+            'cat__ct_state_ttl_closed': 'connection state ttl closed',
+            'cat__ct_state_ttl_established': 'connection state ttl established',
+            'cat__ct_state_ttl_fin_wait2': 'connection state ttl fin wait2',
+            'cat__ct_state_ttl_syn_sent': 'connection state ttl syn sent',
+            'cat__ct_state_ttl_unknown': 'connection state ttl unknown'
+        }
+
 
 
     def explain_classification(self, input_data_frame_x):
@@ -41,18 +86,21 @@ class Core:
 
         # make classification
         classification = self.trained_rf_model.predict(input_data_frame_x)[0] # store classification as integer
-        print('classifiication:', classification)
-        self.classify_traffic(input_data_frame_x)
 
-    #     shap.summary_plot(
-    #     shap_values_class_1,
-    #     input_data_frame_x,
-    #     plot_type="bar",
-    #     max_display=5,
-    #     show=True,
-    # )
+        # call classify traffic function
+        self.classify_traffic(input_data_frame_x) # I am only calling this function to test the prediction logger class
+
+        explanation = []
+
+        # feature indices
+        indices = top_5_features.index
+        for index in indices:
+            explanation.append(f"{self.user_friendly_category_names[index]} pushed traffic classification towards being {self.descriptive_classification[classification]}.\n")
+
+        return explanation
 
 
+    # calling this function will depend on how your frontend handles the data. It may not be needed as you can make a prediction directly inside the above function
     def classify_traffic(self, input_data_frame):
         '''classify traffic'''
         classification = self.trained_rf_model.predict(input_data_frame)[0] # return classification as integer
