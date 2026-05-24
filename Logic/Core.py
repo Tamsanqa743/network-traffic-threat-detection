@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import joblib, os
+import pickle, os
 from pathlib import Path
 import shap
 from .DetectionLogger import DetectionLogger
@@ -16,10 +16,14 @@ class Core:
 
 
         # load random forest trained model from file
-        self.trained_rf_model = joblib.load(self.model_filepath)
+        with open(self.model_filepath, "rb") as f:
+            self.trained_rf_model = pickle.load(f)
+        # self.trained_rf_model = pickle.load(self.model_filepath)
 
         # load tree explainer from file
-        self.tree_explainer = joblib.load(self.tree_explainer_filepath)
+        # self.tree_explainer = pickle.load(self.tree_explainer_filepath)
+        with open(self.tree_explainer_filepath, "rb") as f:
+            self.tree_explainer = pickle.load(f)
 
         # detections logger
         self.logger = DetectionLogger()
@@ -84,11 +88,8 @@ class Core:
         .head(5)
         )
 
-        # make classification
-        classification = self.trained_rf_model.predict(input_data_frame_x)[0] # store classification as integer
-
         # call classify traffic function
-        self.classify_traffic(input_data_frame_x) # I am only calling this function to test the prediction logger class
+        classification = self.classify_traffic(input_data_frame_x) # I am only calling this function to test the prediction logger class
 
         explanation = []
 
@@ -97,7 +98,7 @@ class Core:
         for index in indices:
             explanation.append(f"{self.user_friendly_category_names[index]} pushed traffic classification towards being {self.descriptive_classification[classification]}.\n")
 
-        return explanation
+        return self.descriptive_classification[classification], explanation
 
 
     # calling this function will depend on how your frontend handles the data. It may not be needed as you can make a prediction directly inside the above function
