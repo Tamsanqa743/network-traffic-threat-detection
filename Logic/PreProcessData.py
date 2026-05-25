@@ -21,22 +21,14 @@ class PreProcessData:
             "0": "unknown", "0.0": "unknown",
         }
 
-        
-
-    def normalize_proto(self, val):
-        s = str(val).strip()
-        if s.endswith(".0"):
-            s = s[:-2]
-        if "," in s:
-            return "unknown"
-        return self.PROTO_MAP.get(s, "unknown")
-    
 
     def process_data(self, filename):
 
         '''preprocess csv data: assumption ==> data is already cleaned'''
         network_data = pd.read_csv(filename)
-        return network_data # return data frame
+        log_id  = network_data.loc[0, 'ID']
+        network_data = network_data.drop('ID', axis=1) # drop id
+        return network_data, log_id # return data frame
 
 
 
@@ -82,3 +74,13 @@ class PreProcessData:
 
         data_frame = encoder.transform(data_frame)
         feature_names = encoder.get_feature_names_out()
+
+
+    
+        def normalize_proto(self, val):
+            s = str(val).strip()
+            if s.endswith(".0"):
+                s = s[:-2]
+            if "," in s:
+                return "unknown"
+            return self.PROTO_MAP.get(s, "unknown")

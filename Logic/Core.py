@@ -78,7 +78,7 @@ class Core:
 
 
 
-    def explain_classification(self, input_data_frame_x):
+    def explain_classification(self, input_data_frame_x, log_id):
         df_shap_values = self.tree_explainer.shap_values(input_data_frame_x) # extract shap values from current data frame
         shap_values_class_1 = df_shap_values[:, :, 1] # sort shap values in descending order
 
@@ -89,7 +89,7 @@ class Core:
         )
 
         # call classify traffic function
-        classification = self.classify_traffic(input_data_frame_x) # I am only calling this function to test the prediction logger class
+        classification = self.classify_traffic(input_data_frame_x, log_id) # I am only calling this function to test the prediction logger class
 
         explanation = []
 
@@ -102,8 +102,8 @@ class Core:
 
 
     # calling this function will depend on how your frontend handles the data. It may not be needed as you can make a prediction directly inside the above function
-    def classify_traffic(self, input_data_frame):
+    def classify_traffic(self, input_data_frame, log_id):
         '''classify traffic'''
         classification = self.trained_rf_model.predict(input_data_frame)[0] # return classification as integer
-        self.logger.write_log("Network Activity Classification: " + self.descriptive_classification[classification])
+        self.logger.write_log(self.descriptive_classification[classification], log_id)
         return classification
